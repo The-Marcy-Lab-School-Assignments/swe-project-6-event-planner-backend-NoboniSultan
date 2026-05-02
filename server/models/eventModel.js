@@ -8,6 +8,7 @@ const list = async () => {
        SELECT
             events.event_id,
             events.title,
+            events.description,
             events.date,
             events.location,
             events.event_type,
@@ -53,12 +54,12 @@ const findById = async (eventId) => {
     return rows[0] || null;
 };
 
-const create = async ({ title, description, date, location, evnet_type, max_capacity }, userId) => {
+const create = async ({ title, description, date, location, event_type, max_capacity }, userId) => {
     const { rows } = await pool.query(`
         INSERT INTO events (title, description, date, location, event_type, max_capacity, user_id)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *
-        `, [title, description || null, date, location, evnet_type, max_type, userId]);
+        `, [title, description || null, date, location, event_type, max_capacity, userId]);
     return rows[0];
 };
 
@@ -70,7 +71,7 @@ const update = async (eventId, fields) => {
 
     for (const key of allowed) {
         if (fields[key] !== undefined) {
-            updates.push(` ${key} = ${i++}`);
+            updates.push(`${key} = $${i++}`);
             values.push(fields[key]);
         }
     }

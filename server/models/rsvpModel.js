@@ -6,7 +6,7 @@ const create = async (userId, eventId) => {
         VALUES ($1, $2)
         ON CONFLICT (user_id, event_id) DO NOTHING
         RETURNING *
-        `[userId, eventId]);
+        `, [userId, eventId]);
     return rows[0] || null;
 };
 
@@ -19,8 +19,8 @@ const remove = async (userId, eventId) => {
     return rows[0] || null;
 }
 
-const listEventByUser = async (userId) => {
-    const { row } = await pool.query(`
+const listEventsByUser = async (userId) => {
+    const { rows } = await pool.query(`
         SELECT
             events.event_id,
             events.title,
@@ -40,7 +40,7 @@ const listEventByUser = async (userId) => {
         GROUP BY events.event_id, users.username
         ORDER BY events.date ASC
         `, [userId]);
-    return row;
+    return rows;
 };
 
-module.exports = { create, remove, listEventByUser };
+module.exports = { create, remove, listEventsByUser };

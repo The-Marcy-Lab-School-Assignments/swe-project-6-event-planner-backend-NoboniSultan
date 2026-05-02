@@ -24,7 +24,7 @@ const deleteRsvp = async (req, res) => {
 
 const listUserRsvps = async (req, res) => {
     try {
-        const events = await rsvpModel.listEventByUser(req.params.user_id);
+        const events = await rsvpModel.listEventsByUser(req.params.user_id);
         res.json(events);
     } catch (err) {
         console.error(err);

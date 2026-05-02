@@ -36,6 +36,10 @@ const seed = async () => {
     `);
 
     // Seed users
+    const h1 = await bcrypt.hash('password1', 10);
+    const h2 = await bcrypt.hash('password2', 10);
+    const h3 = await bcrypt.hash('password3', 10);
+
     const { rows: users } = await pool.query(`
         INSERT INTO users (username, password_hash) VALUES
             ('alice',   $1),
@@ -44,12 +48,14 @@ const seed = async () => {
         RETURNING user_id
         `, [h1, h2, h3]);
 
-    const [aliceId, bobId, carolId] = users.map((u) => u.user_id);
+    const aliceId = users[0].user_id;
+    const bobId = users[1].user_id;
+    const carolId = users[2].user_id;
 
     // Seed events
     const { rows: events } = await pool.query(`
-        INSERT INTO events (title, description, data, location, event_type, max_capacity, user_id) VALUES
-            ('React & Node Workshop', '2025-06-01', 'New York, NY',      'workshop',    30, $1),
+        INSERT INTO events (title, description, date, location, event_type, max_capacity, user_id) VALUES
+            ('React & Node Workshop',    'Hands-on full-stack session',   '2025-06-01', 'New York, NY',      'workshop',    30, $1),
             ('Summer Networking Mixer',  'Meet local professionals',      '2025-06-15', 'Brooklyn, NY',      'networking',  50, $2),
             ('Jazz in the Park',         'Live jazz performances',        '2025-07-04', 'Central Park, NY',  'concert',    200, $3),
             ('Charity 5K Run',           'Fun run for a good cause',      '2025-07-20', 'Riverside Park, NY','fundraiser', 150, $1),
@@ -58,13 +64,23 @@ const seed = async () => {
         RETURNING event_id
     `, [aliceId, bobId, carolId]);
 
+    const e1 = events[0].event_id;
+    const e2 = events[1].event_id;
+    const e3 = events[2].event_id;
+    const e4 = events[3].event_id;
+    const e5 = events[4].event_id;
+    const e6 = events[5].event_id;
+
     // Seed RSVPs
     await pool.query(`
         INSERT INTO rsvps (user_id, event_id) VALUES
-        ($1, $4), ($1, $5),
-        ($2, $6), ($2, $7),
-        ($3, $4), ($3, $8)
-        `, [aliceId, bobId, carolId, e2, e3, e1, e4, e5]);
+            ($1, $4),
+            ($1, $5),
+            ($2, $6),
+            ($2, $3),
+            ($3, $1),
+            ($3, $4)
+        `, [aliceId, bobId, carolId, e2, e3, e6]);
 
     console.log('Database seeded successfully');
     process.exit();
